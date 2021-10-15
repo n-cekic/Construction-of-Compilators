@@ -1,0 +1,21 @@
+Omogućiti definisanje funkcija jedne promenljive x. Imena funkcija moraju biti jedno slovo abecede, osim x, koje se smatra nezavisno promenljivom. Štampanje funkcija se vrši prostim navo denjem njenog imena.
+------------------------------------------
+function f = "1+x*x"
+f
+=> (1)+((x)*(x))
+function g = "sin(cos(x))+3.12"
+g
+=> (sin(cos(x)))+(3.12)
+==========================================
+Implementirati računanje izvoda funkcije. Izvod se označava apostrofom.
+function h = "(1+x*x)’"
+------------------------------------------
+h
+=> (0)+(((1)*(x))+((x)*(1)))
+f’
+=> (0)+(((1)*(x))+((x)*(1)))
+==========================================
+Računanje vrednosti funkcije u nekoj tački realizuje se operatorom [ ].
+------------------------------------------
+h[4]
+=> 8

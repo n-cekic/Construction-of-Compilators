@@ -1,0 +1,91 @@
+%{
+#include <iostream>
+#include <string>
+#include <cstdlib>
+#include <map>		
+#include <math.h>
+#include "function.hpp"
+/* za potrebe debagovanja */
+#define YYDEBUG 1
+
+using namespace std;
+
+/* funkcija za obradu gresaka */
+void yyerror(string message) {
+     cerr<<message<<endl;
+     exit(EXIT_FAILURE);
+}
+
+/* Leksicki analizator */
+extern int yylex();
+  
+ map<char, Funkcija*> tablica;
+
+%}
+
+/* Unija koja predstavlja tip atributa tokena i neterminala */
+%union {
+  double d;
+  char c;
+  Funkcija* fp;
+}
+
+/* Definisemo tokene i naglasavamo koji atribut ima token*/
+%token <d> num_token value_token sin_token cos_token function_token
+%token <c> id_token
+
+/* Definisemo koji atribut imaju neterminali */
+%type <fp> E
+
+/* Navedemo prioritet i asocijativnost operatora */
+%left '+' '-'
+%left '*' '/'
+%left '\''
+%left UMINUS
+
+%%
+Program: Naredba '\n' Program
+| 
+;
+
+Naredba: function_token id_token '=' '"' E '"' {
+  tablica[$2] = $5;
+}
+| id_token   {
+  map<char, Funkcija*>::iterator i = tablica.find($1);
+  if (i == tablica.end())
+    yyerror("Fja nije definisana");
+  cout << *(i -> second) << endl;
+  }
+| id_token '[' num_token ']' {
+  map<char, Funkcija*>::iterator i = tablica.find($1);
+  if (i == tablica.end())
+    yyerror("Fja nije definisana");
+  cout << (i -> second)->izracunaj($3) << endl;  
+}
+;
+
+E: E '+' E              { $$ = new Plus($1, $3); } 
+| E '*' E                { $$ = new Puta($1, $3); }
+| '(' E ')'              { $$ = $2; }
+| E '\''                 { $$ = $1->izvod(); }
+| sin_token '(' E ')' 	 { $$ = new Sin($3); }
+| cos_token '(' E ')'    { $$ = new Cos($3); }
+| num_token              { $$ = new Konstanta($1); }
+| 'x'                    { $$ = new IdFunkcija(); }
+| id_token               {
+  map<char, Funkcija*>::iterator i = tablica.find($1);
+  if (i == tablica.end())
+    yyerror("Fja nije definisana");
+  $$ = i->second;
+}
+;
+
+
+%%
+
+int main () {
+  // yydebug = 1;
+  yyparse();
+  return 0;
+}

@@ -1,0 +1,28 @@
+Prepoznati validne regularne izraze: (tačka predstavalja konkatenaciju)
+a*.b+.c.d.e{3}|a+.b?.c.d|[abcde]|(a.b)*.[cde]?
+=============================================
+Regularni izrazi se naredbom BASIC prebacuju u osnovne regularne izraze:
+BASIC a*.b+.c.d.e{3}
+=> ((((((a)*)((b)((b)*)))(c))(d))((e)(e)(e)))
+BASIC a*|b
+=> (((a)*)|(b))
+BASIC [cde]?
+=> (((c)|(d)|(e))|(EPS))
+=============================================
+Omogućiti rad sa regularnim definicijama:
+---------------------------------------------
+DEFINITION A = a.b*|b.a*
+DEFINITION B = [ab]{2}
+BASIC A
+=> (((a)((b)*))|((b)((a)*)))
+=============================================
+Regularne definicije se prave nad već definisanim regularnim definicijama ili
+nad regularnim izrazima:
+---------------------------------------------
+DEFINITION C = A | c.d*
+BASIC C
+=> ((((a)((b)*))|((b)((a)*)))|((c)((d)*)))
+BASIC C . B
+=> (((((a)((b)*))|((b)((a)*)))|((c)((d)*)))(((a)|(b))((a)|(b))))
+BASIC (A | c.d*) . B
+=> (((((a)((b)*))|((b)((a)*)))|((c)((d)*)))(((a)|(b))((a)|(b))))

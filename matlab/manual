@@ -1,0 +1,16 @@
+U programskom paketu MATLAB, svaka promenjiva predstavlja matricu, pri čemu se matrice zapisuju
+tako što se u uglastim zagradama navede niz vrsta razdvojenih sa ;, dok su elementi jedne vrste brojevi
+razdvojeni sa belinama. Npr. matrica
+
+| 1.5 2  |
+|  3 4.3 |
+
+se zapisuje sa [1.5 2; 3 4.3]. Tekstualna datoteka sadrži niz linija oblika <imeprom> = <izraz> ili 
+<imeprom> = <izraz>; , pri čemu su ispravni izrazi sastavljeni od matrica i prethodno definisanih 
+promenjivih korišćenjem sledećih operatora:
+
++ sabiranje matrica
+- oduzimanje matrica
+* uobičajeno množenje matrica
+.* množenje dve matrice istih dimenzija ”elemenat po elemenat”
+' transponovanje matrice

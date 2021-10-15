@@ -1,0 +1,90 @@
+
+%{
+    #include <iostream>
+    #include <cstdlib>
+    #include <map>
+    // #include <vector>
+
+    #include "regex.hpp"
+
+    extern int yylex();
+
+    void yyerror(const char *s) {
+        std::cerr << s << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    std::map<char, Regex*> RegexTable;
+%}
+
+%union{
+    int d;
+    // std::vector<Regex*> ve;
+    // std::vector<char> vc;
+    char c;
+    Regex* e;
+}
+
+
+%token basic_token definition_token 
+%token <c> char_token regex_token 
+%token <d> num_token
+
+
+%type <e> CharNiz E NizRegex
+
+
+%left '|'
+%left '*' '+' '?' 
+%nonassoc '{'
+
+%%
+
+Program: Naredba '\n' Program
+    |
+    ;
+
+Naredba: basic_token NizRegex {
+    std::cout << *$2 << std::endl;
+    } 
+    | definition_token regex_token '=' NizRegex {
+        RegexTable[$2] = $4;
+        std::cout << "Izraz dodat u tablicu\n";
+    }
+    // | basic_token regex_token {
+    //     std::cout << (*RegexTable[$2]) << std::endl;
+    // }
+    ;
+
+NizRegex: NizRegex E { $$ = new Cat($1, $2); }
+    | E { $$ = $1;}
+    ;
+
+E: E '*' { $$ = new Star($1); }
+    | E '+' { $$ = new Plus($1); }
+    | E '?' { $$ = new QMark($1); }
+    | E '{' num_token '}' { $$ = new Times($1, $3); }
+    | '[' CharNiz ']' { $$ = new CharClass($2); }
+    | E '|' E { $$ = new Or($1, $3); }
+    // | '(' NizRegex ')' { $$ = new ; }
+    | char_token { $$ = new Char($1); }
+    | regex_token {$$ = RegexTable[$1];}
+    ;
+
+
+CharNiz: CharNiz char_token {
+        $$ = new Cat($1, new Char($2));
+    }
+    | char_token {
+        $$ = new Char($1);
+    }
+    ;
+
+%%
+
+
+int main() {
+    // yydebug = 1
+    yyparse();
+    return 0;
+}

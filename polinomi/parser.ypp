@@ -1,0 +1,87 @@
+%{
+#include <iostream>
+#include <map>
+#include <string>
+#include <vector>
+
+#include "polinomi.hpp"
+
+#define YYDEBUG 1
+
+extern int yylex();
+
+void yyerror(const char *s) {
+    std::cerr << s << std::endl;
+    exit(EXIT_FAILURE);
+}
+
+std::map<std::string, Polinom*> tablica_polinoma;
+
+%}
+
+%union {
+    double d;
+    std::string* s;
+    std::vector<double> *v;
+    Polinom* p;
+}
+
+%token <s> id_token 
+%token <d> num_token
+
+%type <p> E
+%type <v> P
+
+%left '=' '!' '['
+%left '+' '-'
+%left '*'
+%left '\''
+%left '('
+%left '<'
+%left UMINUS
+
+
+%%
+
+Program: Naredba '\n' Program
+    |
+    ;
+
+Naredba: id_token ':' '=' E {
+        tablica_polinoma[*$1] = $4;
+        std::cout << "dodat u tablicu\n";
+    }
+    | E { std::cout << *$1; }
+    ;
+
+E: E '+' E { $$ = *$1 + *$3;}
+    | E '-' E { $$ = *$1 - *$3;}
+    | E '*' E { $$ = *$1 * *$3;}
+    | E '=' '=' E { }
+    | E '!' '=' E { }
+    | '(' E ')' { $$ = $2; }
+    | E '\'' { $$ = $1; } //nije implementirano
+    | E '[' num_token ']'  { $$ = new Polinom((*$1)[$3]);} 
+    | '-' E  %prec UMINUS  { $$ = $2; }
+    | '<' P '>' { $$ = new Polinom($2); }
+    | id_token { $$ = tablica_polinoma[*$1]; }
+    ;
+
+P: P ',' num_token {
+        $1->push_back($3);
+        $$ = $1;
+    }
+    | num_token {
+        $$ = new std::vector<double>;
+        $$->push_back($1);
+    }
+    ;
+
+
+%%
+
+int main() {
+    // yydebug = 1;
+    yyparse();
+    return 0;
+}   
